@@ -10,6 +10,10 @@ router.get('/:id', (req, res) => {
   // do your magic!
 });
 
+router.post('/', (req, res) => { //validatePost
+  // do your magic!
+});
+
 router.delete('/:id', (req, res) => {
   // do your magic!
 });

@@ -2,8 +2,14 @@ const express = require('express');
 const Users = require('./userDb')
 const router = express.Router();
 
-router.post('/', (req, res) => {
-  // do your magic!
+router.post('/', validateUser, (req, res) => {
+  Users.insert(req.body)
+  .then(user => {
+    res.status(201).json(user)
+  })
+  .catch(error => {
+    res.status(500).json({message: error.message })
+  })
 });
 
 router.post('/:id/posts', (req, res) => {
@@ -41,7 +47,7 @@ router.get('/:id/posts', (req, res) => {
   })
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateUserId, (req, res) => {
   Users.remove(req.params.id)
   .then(count => {
     res.status(200).json({message: 'user has been deleted'})
@@ -52,7 +58,16 @@ router.delete('/:id', (req, res) => {
 });
 
 router.put('/:id', (req, res) => {
-  // do your magic!
+  const {id} = req.params
+  const changes = req.body
+  console.log("req.body", req)
+  Users.update(id, changes)
+  .then(user => {
+    res.status(200).json(user)
+  })
+  .catch(error => {
+    res.status(500).json({message: error.message, stack: error.stack})
+  })
 });
 
 //custom middleware
@@ -75,7 +90,14 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  
+  const { name, id } = req.body
+  if (!Object.keys(req.body)) {
+    res.status(400).json({message: "missing user data" })
+  } else if (!name) {
+      res.status(400).json({message: "missing user name" })
+  } else {
+    next()
+  }
 }
 
 function validatePost(req, res, next) {
