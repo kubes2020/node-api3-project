@@ -16,13 +16,6 @@ router.get('/:id', validatePostId, (req, res) => {
   res.status(200).json(req.post)
 });
 
-////////////////
-
-router.post('/', validatePost, (req, res) => { 
-  res.status(201).json(req.body.text)
-})
-
-
 router.delete('/:id', validatePostId, (req, res) => {
   Posts.remove(req.params.id)
   .then(count => {
@@ -69,13 +62,6 @@ function validatePostId(req, res, next) {
   })
 }
 
-function validatePost(req, res, next) {
-  const { text } = req.body
-  if(!text){
-    res.status(400).json({message: 'text is required'})
-  } else {
-    next()
-  }
-}
+
 
 module.exports = router;

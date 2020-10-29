@@ -13,7 +13,7 @@ router.post('/', validateUser, (req, res) => {
   })
 });
 
-router.post('/:id/posts', (req, res) => {
+router.post('/:id/posts', validatePost, (req, res) => {
     const postInfo = { ...req.body, user_id: req.params.id }
     Posts.insert(postInfo)
     .then(post => {
@@ -98,7 +98,7 @@ function validateUserId(req, res, next) {
 }
 
 function validateUser(req, res, next) {
-  const { name, id } = req.body
+  const { name } = req.body
   if (!Object.keys(req.body)) {
     res.status(400).json({message: "missing user data" })
   } else if (!name) {
@@ -108,8 +108,15 @@ function validateUser(req, res, next) {
   }
 }
 
-// function validatePost(req, res, next) {
-  
-// }
+function validatePost(req, res, next) {
+  const { text } = req.body
+  if (!Object.keys(req.body)) {
+    res.status(400).json({message: "missing post data" })
+  } else if (!text) {
+      res.status(400).json({message: "missing text" })
+  } else {
+    next()
+  }
+}
 
 module.exports = router;
