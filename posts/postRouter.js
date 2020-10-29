@@ -2,31 +2,31 @@ const express = require('express');
 const Posts = require('./postDb')
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   Posts.get(req.query)
   .then(post =>{
     res.status(200).json(post)
   })
   .catch(error => {
-    res.status(500).json({ message: error.message })
-  })
+    next({message: error.message})
 });
+})
 
 router.get('/:id', validatePostId, (req, res) => {
   res.status(200).json(req.post)
 });
 
-router.delete('/:id', validatePostId, (req, res) => {
+router.delete('/:id', validatePostId, (req, res, next) => {
   Posts.remove(req.params.id)
   .then(count => {
     res.status(200).json({ message: 'post was deleted'})
   })
   .catch(error => {
-    res.status(500).json({message: error.message})
+    next({message: error.message})
   })
 });
 
-router.put('/:id', validatePostId, (req, res) => {
+router.put('/:id', validatePostId, (req, res, next) => {
   Posts.update(req.params.id, req.body)
   .then(post => {
     if (post){
@@ -38,9 +38,7 @@ router.put('/:id', validatePostId, (req, res) => {
   .catch(error => {
     // log error to server
     console.log(error);
-    res.status(500).json({
-      message: 'Error updating the hub',
-    });
+    next({message: error.message})
   });
 });
 
@@ -58,10 +56,12 @@ function validatePostId(req, res, next) {
     }
   })
   .catch(error => {
-    res.status(500).json({ message: error.message })
+    next({message: error.message})
   })
 }
 
-
+router.use((error, req, res, next) => {
+  res.status(500).json({ message: error.message })
+})
 
 module.exports = router;

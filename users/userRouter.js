@@ -13,26 +13,24 @@ router.post('/', validateUser, (req, res) => {
   })
 });
 
-router.post('/:id/posts', validatePost, (req, res) => {
+router.post('/:id/posts', validatePost, (req, res, next) => {
     const postInfo = { ...req.body, user_id: req.params.id }
     Posts.insert(postInfo)
     .then(post => {
       res.status(201).json(post)
     })
     .catch(error => {
-      res.status(500).json({message: error.message})
+      next({message: error.message})
     })
 });
 
-router.get('/', (req, res) => {
+router.get('/', (req, res, next) => {
   Users.get(req.query)
   .then(users => {
     res.status(200).json(users)
   })
   .catch(error => {
-    res.status(500).json({ 
-      message: error.message, stack: error.stack
-    })
+    next({message: error.message})
   })
 });
 
@@ -40,7 +38,7 @@ router.get('/:id', validateUserId, (req, res) => {
   res.status(200).json(req.user)
 });
 
-router.get('/:id/posts', (req, res) => {
+router.get('/:id/posts', (req, res, next) => {
   const { id } = req.params
   Users.getUserPosts(id)
   .then(posts => {
@@ -51,21 +49,21 @@ router.get('/:id/posts', (req, res) => {
     }
   })
   .catch(error => {
-    res.status(500).json({message: error.message, stack: error.stack })
+    next({message: error.message})
   })
 });
 
-router.delete('/:id', validateUserId, (req, res) => {
+router.delete('/:id', validateUserId, (req, res, next) => {
   Users.remove(req.params.id)
   .then(count => {
     res.status(200).json({message: 'user has been deleted'})
   })
   .catch(error => {
-    res.status(500).json({message: error.message, stack: error.stack })
+    next({message: error.message})
   })
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', (req, res, next) => {
   const {id} = req.params
   const changes = req.body
   console.log("req.body", req)
@@ -74,7 +72,7 @@ router.put('/:id', (req, res) => {
     res.status(200).json(user)
   })
   .catch(error => {
-    res.status(500).json({message: error.message, stack: error.stack})
+    next({message: error.message})
   })
 });
 
@@ -118,5 +116,9 @@ function validatePost(req, res, next) {
     next()
   }
 }
+
+router.use((error, req, res, next) => {
+  res.status(500).json({ message: error.message })
+})
 
 module.exports = router;
