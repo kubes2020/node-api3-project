@@ -25,7 +25,7 @@ router.post('/:id/posts', validatePost, (req, res, next) => {
 });
 
 router.get('/', (req, res, next) => {
-  Users.get(req.query)
+  Users.get()
   .then(users => {
     res.status(200).json(users)
   })
